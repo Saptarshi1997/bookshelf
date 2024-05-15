@@ -15,12 +15,6 @@ const addBook = asyncHandler(async (req, res) => {
         return res.json(new responseHandler(400, {}, "Author is required!"))
     }
 
-    const existingBook = await Book.findOne({title: title});
-
-    if (existingBook){
-        return res.json(new responseHandler(400, {}, "Book is already there in the shelf!"))
-    }
-
     const book = await Book.create({
         title,
         author,
