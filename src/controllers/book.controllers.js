@@ -3,11 +3,12 @@ const responseHandler = require("../utils/responseHandler");
 const Book = require("../models/book.models");
 
 const addBook = asyncHandler(async (req, res) => {
-    // get video file and the details from frontend
-    // save the video and details to database
 
+    // taking data from request body
     const { title, author, publishedYear } = req.body;
 
+
+    // checking blank validation
     if (!title) {
         return res.json(new responseHandler(400, {}, "Title is required!"))
     }
@@ -15,12 +16,14 @@ const addBook = asyncHandler(async (req, res) => {
         return res.json(new responseHandler(400, {}, "Author is required!"))
     }
 
+    // checking existing book
     const existingBook = await Book.findOne({ title: title });
 
     if (existingBook) {
         return res.json(new responseHandler(400, {}, "Book is already there is the shelf!"))
     }
 
+    // saving data to the in memory database
     const book = await Book.create({
         title,
         author,
@@ -31,20 +34,19 @@ const addBook = asyncHandler(async (req, res) => {
 })
 
 const getAllBooks = asyncHandler(async (req, res) => {
-    // get queries like pageNum, limit, sort, etc. from frontend
+
+    // optionaly added the limit and offset features
     const { pageNum = 1, limit = 10 } = req.body;
 
-    // Prepare the options for pagination
     const options = {
         skip: (parseInt(pageNum) - 1) * parseInt(limit),
         limit: parseInt(limit),
     };
 
     try {
-        // Perform the database query
+        // getting the books from the database filtering with the options
         const books = await Book.find({}, null, options).populate({ path: 'owner', select: 'title author publishedYear', options: { strictPopulate: false } });
 
-        // Return the paginated list of books
         return res.json(new responseHandler(201, books, "Books fetched successfully"));
     } catch (error) {
         console.log("error in fetching books", error);
@@ -75,11 +77,11 @@ const updateBook = asyncHandler(async (req, res) => {
     const { title, author, publishedYear } = req.body;
 
     try {
-        // Find the book by its ID and update it
+        // Finding the book by the id that is getting from request params and updating with the data
         const updatedBook = await Book.findByIdAndUpdate(
             bookId,
             { title, author, publishedYear },
-            { new: true } // Return the updated document
+            { new: true }
         );
 
         if (!updatedBook) {
