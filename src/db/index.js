@@ -4,6 +4,7 @@ const DB_NAME = require("../constant");
 
 const connectDb = async () => {
     try {
+        // making in memory server
         mongoServer = await MongoMemoryServer.create({
             instance: {
                dbName: DB_NAME,
